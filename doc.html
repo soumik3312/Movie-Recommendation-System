@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMate - Movie Recommendations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-red: #e50914;
+            --darker-red: #b20710;
+            --black: #000000;
+            --dark-gray: #141414;
+            --light-gray: #303030;
+            --white: #ffffff;
+            --text-gray: #aaaaaa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: var(--black);
+            color: var(--white);
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--white);
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 15px 5%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .logo {
+            color: var(--primary-red);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 20px;
+        }
+        
+        nav ul li a {
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        nav ul li a:hover {
+            background-color: var(--primary-red);
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-bar {
+            margin-right: 20px;
+            position: relative;
+        }
+        
+        .search-bar input {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--light-gray);
+            background-color: var(--dark-gray);
+            color: var(--white);
+            width: 220px;
+        }
+        
+        .search-bar button {
+            background: none;
+            border: none;
+            color: var(--white);
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+        
+        .account-btn {
+            background-color: var(--primary-red);
+            color: var(--white);
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .account-btn:hover {
+            background-color: var(--darker-red);
+        }
+        
+        /* Hero Carousel */
+        .hero-carousel {
+            position: relative;
+            height: 500px;
+            overflow: hidden;
+        }
+        
+        .carousel-slides {
+            display: flex;
+            width: 400%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+        
+        .carousel-slide {
+            width: 25%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.6);
+        }
+        
+        .slide-content {
+            position: absolute;
+            bottom: 100px;
+            left: 5%;
+            width: 40%;
+        }
+        
+        .slide-content h2 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+        
+        .slide-content p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: var(--text-gray);
+        }
+        
+        .cta-button {
+            background-color: var(--primary-red);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background-color: var(--darker-red);
+        }
+        
+        .carousel-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+        }
+        
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        
+        .indicator.active {
+            background-color: var(--primary-red);
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 40px 5%;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .view-all {
+            font-size: 16px;
+            color: var(--text-gray);
+        }
+        
+        .view-all:hover {
+            color: var(--primary-red);
+        }
+        
+        /* Movie Row */
+        .movie-row {
+            position: relative;
+            margin-bottom: 50px;
+        }
+        
+        .slider-container {
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .slider {
+            display: flex;
+            padding: 10px 0;
+            transition: transform 0.5s ease;
+        }
+        
+        .movie-card {
+            flex: 0 0 200px;
+            margin-right: 15px;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .movie-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.3);
+        }
+        
+        .movie-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+        
+        .movie-info {
+            padding: 10px;
+            background-color: var(--dark-gray);
+        }
+        
+        .movie-title {
+            font-size: 16px;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .movie-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+        
+        .rating {
+            color: var(--primary-red);
+            font-weight: bold;
+        }
+        
+        .category-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--primary-red);
+            color: var(--white);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .slider-btn:hover {
+            background-color: var(--primary-red);
+            border-color: var(--primary-red);
+        }
+        
+        .slider-btn.prev {
+            left: 10px;
+        }
+        
+        .slider-btn.next {
+            right: 10px;
+        }
+        
+        /* Categories Section */
+        .categories-section {
+            margin-bottom: 50px;
+        }
+        
+        .category-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .category-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-tab:hover {
+            color: var(--primary-red);
+        }
+        
+        .category-tab.active {
+            border-bottom: 3px solid var(--primary-red);
+            color: var(--primary-red);
+            font-weight: bold;
+        }
+        
+        .category-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        /* Reviews Section */
+        .reviews-section {
+            margin-bottom: 50px;
+        }
+        
+        .review-card {
+            background-color: var(--dark-gray);
+            padding: 20px;
+            border-radius: 6px;
+            margin-right: 15px;
+            flex: 0 0 350px;
+        }
+        
+        .review-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-red);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+        
+        .review-movie {
+            font-weight: bold;
+        }
+        
+        .review-text {
+            color: var(--text-gray);
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        
+        .review-footer {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-gray);
+            padding: 40px 5%;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+        
+        .footer-section h3 {
+            color: var(--primary-red);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-section ul li a {
+            color: var(--text-gray);
+            transition: color 0.3s ease;
+        }
+        
+        .footer-section ul li a:hover {
+            color: var(--primary-red);
+        }
+        
+        .social-icons {
+            display: flex;
+            margin-top: 15px;
+        }
+        
+        .social-icons a {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            background-color: var(--primary-red);
+        }
+        
+        .footer-bottom {
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--light-gray);
+            color: var(--text-gray);
+        }
+        
+        /* Advanced Filters */
+        .advanced-filters {
+            background-color: var(--dark-gray);
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-title {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .filter-item {
+            background-color: var(--light-gray);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-item:hover, .filter-item.active {
+            background-color: var(--primary-red);
+        }
+        
+        .filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+        
+        .filter-actions button {
+            padding: 8px 15px;
+            margin-left: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn {
+            background-color: transparent;
+            color: var(--text-gray);
+            border: 1px solid var(--light-gray);
+        }
+        
+        .reset-btn:hover {
+            color: var(--white);
+            border-color: var(--white);
+        }
+        
+        .apply-btn {
+            background-color: var(--primary-red);
+            color: var(--white);
+            border: none;
+        }
+        
+        .apply-btn:hover {
+            background-color: var(--darker-red);
+        }
+        
+        /* View All Pages */
+        .view-all-page {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .view-all-page.active {
+            display: block;
+        }
+        
+        .view-all-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .page-title {
+            margin-bottom: 30px;
+            font-size: 28px;
+            color: var(--white);
+        }
+        
+        .back-button {
+            margin-bottom: 20px;
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: var(--primary-red);
+            color: var(--white);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background-color: var(--darker-red);
+        }
+        
+        /* About Section */
+        .about-section {
+            display: none;
+            padding: 40px 5%;
+        }
+        
+        .about-section.active {
+            display: block;
+        }
+        
+        .about-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--dark-gray);
+            padding: 30px;
+            border-radius: 8px;
+        }
+        
+        .about-title {
+            color: var(--primary-red);
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        
+        .about-content p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: var(--text-gray);
+        }
+        
+        .team-section {
+            margin-top: 40px;
+        }
+        
+        .team-title {
+            color: var(--primary-red);
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .team-member {
+            text-align: center;
+        }
+        
+        .member-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            background-color: var(--light-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            color: var(--primary-red);
+        }
+        
+        .member-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .member-role {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+        
+        /* Search Results */
+        .search-results {
+            display: none;
+            padding: 40px 5%;
+        }
+        
+        .search-results.active {
+            display: block;
+        }
+        
+        .search-info {
+            margin-bottom: 30px;
+        }
+        
+        .search-query {
+            color: var(--primary-red);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 50px 0;
+            color: var(--text-gray);
+        }
+        
+        /* Responsive */
+        @media screen and (max-width: 768px) {
+            nav ul {
+                display: none;
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .slide-content {
+                width: 80%;
+            }
+            
+            .search-bar input {
+                width: 150px;
+            }
+            
+            .hero-carousel {
+                height: 350px;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-bar {
+                display: none;
+            }
+            
+            .hero-carousel {
+                height: 250px;
+            }
+            
+            .slide-content h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo" id="logo">CineMate</div>
+        <nav>
+            <ul>
+                <li><a href="#" id="home-link">Home</a></li>
+                <li><a href="#" id="movies-link">Movies</a></li>
+                <li><a href="#" id="tvshows-link">TV Shows</a></li>
+                <li><a href="#" id="categories-link">Categories</a></li>
+                <li><a href="#" id="about-link">About</a></li>
+            </ul>
+        </nav>
+        <div class="user-actions">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search movies...">
+                <button id="search-button"><i class="fas fa-search"></i></button>
+            </div>
+            <button class="account-btn">Sign In</button>
+        </div>
+    </header>
+    
+    <!-- Hero Carousel -->
+    <section class="hero-carousel" id="hero-section">
+        <div class="carousel-slides">
+            <div class="carousel-slide">
+                <img src="https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg" alt="Inception Movie Poster">
+                <div class="slide-content">
+                    <h2>Inception</h2>
+                    <p>A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.</p>
+                    <a href="#" class="cta-button">Watch Now</a>
+                </div>
+            </div>
+            <div class="carousel-slide">
+                <img src="https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_.jpg" alt="The Dark Knight Movie Poster">
+                <div class="slide-content">
+                    <h2>The Dark Knight</h2>
+                    <p>When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.</p>
+                    <a href="#" class="cta-button">Watch Now</a>
+                </div>
+            </div>
+            <div class="carousel-slide">
+                <img src="https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg" alt="Interstellar Movie Poster">
+                <div class="slide-content">
+                    <h2>Interstellar</h2>
+                    <p>A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.</p>
+                    <a href="#" class="cta-button">Watch Now</a>
+                </div>
+            </div>
+            <div class="carousel-slide">
+                <img src="https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_.jpg" alt="Parasite Movie Poster">
+                <div class="slide-content">
+                    <h2>Parasite</h2>
+                    <p>Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.</p>
+                    <a href="#" class="cta-button">Watch Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+            </div>
+        </div>
+        <div class="carousel-indicators">
+            <div class="indicator active"></div>
+            <div class="indicator"></div>
+            <div class="indicator"></div>
+            <div class="indicator"></div>
+        </div>
+    </section>
+    
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        <!-- Advanced Filters -->
+        <section class="advanced-filters">
+            <div class="filter-title">Filter Movies:</div>
+            <div class="filter-group">
+                <div class="filter-item">Action</div>
+                <div class="filter-item">Comedy</div>
+                <div class="filter-item">Drama</div>
+                <div class="filter-item">Horror</div>
+                <div class="filter-item">Sci-Fi</div>
+                <div class="filter-item">Animation</div>
+                <div class="filter-item">Thriller</div>
+            </div>
+            <div class="filter-title">Actor:</div>
+            <div class="filter-group">
+                <div class="filter-item">Tom Hanks</div>
+                <div class="filter-item">Leonardo DiCaprio</div>
+                <div class="filter-item">Jennifer Lawrence</div>
+                <div class="filter-item">Shah Rukh Khan</div>
+                <div class="filter-item">Prabhas</div>
+            </div>
+            <div class="filter-title">Director:</div>
+            <div class="filter-group">
+                <div class="filter-item">Christopher Nolan</div>
+                <div class="filter-item">Steven Spielberg</div>
+                <div class="filter-item">S.S. Rajamouli</div>
+                <div class="filter-item">Karan Johar</div>
+            </div>
+            <div class="filter-actions">
+                <button class="reset-btn">Reset</button>
+                <button class="apply-btn">Apply Filters</button>
+            </div>
+        </section>
+        
+        <!-- Recently Released -->
+        <section class="movie-row" id="recently-released">
+            <div class="section-title">
+                <h2>Recently Released</h2>
+                <a href="#" class="view-all" id="view-all-recent">View All</a>
+            </div>
+            <div class="slider-container">
+                <div class="slider">
+                    <div class="movie-card">
+                        <div class="category-badge">Hollywood</div>
+                        <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fencrypted-tbn3.gstatic.com%2Fimages%3Fq%3Dtbn%3AANd9GcRBu8Gzdygf5OOqBJUIJ3-ZxiPbLh62OhvLmtOvuR7x2gF3DucU&psig=AOvVaw3V6VF2f5kkVVe84hQ8CAr-&ust=1743633893271000&source=images&cd=vfe&opi=89978449&ved=0CBAQjRxqFwoTCJjLx8f0t4wDFQAAAAAdAAAAABAE" alt="Dune: Part Two">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Dune: Part Two</h3>
+                            <div class="movie-details">
+                                <span>2024</span>
+                                <span class="rating">9.1/10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="category-badge">Bollywood</div>
+                        <img src="https://i.pinimg.com/736x/8c/59/8e/8c598e23041ab30f831e8ae8ecb3ac8a.jpg" alt="Kalki 2898 AD">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Kalki 2898 AD</h3>
+                            <div class="movie-details">
+                                <span>2024</span>
+                                <span class="rating">8.7/10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="category-badge">Hollywood</div>
+                        <img src="https://upload.wikimedia.org/wikipedia/en/4/4a/Oppenheimer_%28film%29.jpg" alt="Oppenheimer">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Oppenheimer</h3>
+                            <div class="movie-details">
+                                <span>2023</span>
+                                <span class="rating">8.9/10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="category-badge">Tollywood</div>
+                        <img src="https://i.pinimg.com/1200x/bb/62/9c/bb629c5f16449a90aaa546736d9079e0.jpg" alt="Salaar">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Salaar</h3>
+                            <div class="movie-details">
+                                <span>2023</span>
+                                <span class="rating">8.5/10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="category-badge">Hollywood</div>
+                        <img src="https://i.pinimg.com/736x/1e/44/f2/1e44f28be98341e416ddfe1b27316dd4.jpg" alt="Joker: Folie à Deux">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Joker: Folie à Deux</h3>
+                            <div class="movie-details">
+                                <span>2024</span>
+                                <span class="rating">7.9/10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="category-badge">Bollywood</div>
+                        <img src="https://upload.wikimedia.org/wikipedia/en/9/90/Animal_%282023_film%29_poster.jpg" alt="Animal">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Animal</h3>
+                            <div class="movie-details">
+                                <span>2023</span>
+                                <span class="rating">8.2/10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-btn prev"><i class="fas fa-chevron-left"></i></div>
+                <div class="slider-btn next"><i class="fas fa-chevron-right"></i></div>
+            </div>
+        </section>
+        
+        <!-- Trending Now -->
+        <section class="movie-row" id="trending-now">
+            <div class="section-title">
+                <h2>Trending Now</h2>
+                <a href="#" class="view-all" id="view-all-trending">View All</a>
+            </div>
+            <div class="slider-container">
+                <div class="slider">
+                    <div class="movie-card">
+                        <div class="category-badge">Bollywood</div>
+                        <img src="https://filmfare.wwmindia.com/content/2023/aug/jawan21691407612.jpg" alt="Jawan">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Jawan</h3>
+                            <div class="movie-details">
+                                <span>2023</span>
+                                <span class="rating">7.9/10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="category-badge">Hollywood</div>
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxPU6JrNqX9rG-VFVNFqU_t5qaEj4cc1e47g&s" alt="Barbie">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Barbie</h3>
+                            <div class="movie-details">
+                                <span>2023</span>
+                                <span class="rating">7.3/10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="category-badge">Tollywood</div>
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMDD0-LnDTd4M7jaOgwRnTn8d_ZfrTI5HoPA&s" alt="Pushpa">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Pushpa</h3>
+                            <div class="movie-details">
+                                <span>2021</span>
+                                <span class="rating">7.6/10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="category-badge">Hollywood</div>
+                        <img src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg" alt="Avatar: The Way of Water">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Avatar: The Way of Water</h3>
+                            <div class="movie-details">
+                                <span>2022</span>
+                                <span class="rating">7.7/10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="category-badge">Bollywood</div>
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSA6Dl3QznuwZR5RYpaF9LtKR1hTVc_ghulCw&s" alt="Pathaan">
+                        <div class="movie-info">
+                            <h3 class="movie-title">Pathaan</h3>
+                            <div class="movie-details">
+                                <span>2023</span>
+                                <span class="rating">7.1/10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-btn prev"><i class="fas fa-chevron-left"></i></div>
+                <div class="slider-btn next"><i class="fas fa-chevron-right"></i></div>
+            </div>
+        </section>
+                    <!-- Movie Card 11 Completion -->
+                    <div class="movie-info">
+                        <h3 class="movie-title">Pathaan</h3>
+                        <div class="movie-details">
+                            <span>2023</span>
+                            <span class="rating">7.1/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="movie-card">
+                    <div class="category-badge">Tollywood</div>
+                    <img src="https://www.cinejosh.com/newsimg/newsmainimg/rrr-first-look-motion-poster-rise-roar-revolt_b_2503200643.jpg" alt="Movie 12">
+                    <div class="movie-info">
+                        <h3 class="movie-title">RRR</h3>
+                        <div class="movie-details">
+                            <span>2022</span>
+                            <span class="rating">8.0/10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-btn prev"><i class="fas fa-chevron-left"></i></div>
+            <div class="slider-btn next"><i class="fas fa-chevron-right"></i></div>
+        </div>
+    </section>
+    
+    <!-- Recommended For You -->
+    <section class="movie-row" id="recommended">
+        <div class="section-title">
+            <h2>Recommended For You</h2>
+            <a href="#" class="view-all" id="view-all-recommended">View All</a>
+        </div>
+        <div class="slider-container">
+            <div class="slider">
+                <div class="movie-card">
+                    <div class="category-badge">Hollywood</div>
+                    <img src="https://m.media-amazon.com/images/I/61k7Mx2IjzL._AC_UF894,1000_QL80_.jpg" alt="Movie 13">
+                    <div class="movie-info">
+                        <h3 class="movie-title">The Godfather</h3>
+                        <div class="movie-details">
+                            <span>1972</span>
+                            <span class="rating">9.2/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="movie-card">
+                    <div class="category-badge">Bollywood</div>
+                    <img src="https://bollywoodmovieposters.com/wp-content/uploads/2025/02/lagaan-team-poster-aamir-khan-movie.jpg" alt="Movie 14">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Lagaan</h3>
+                        <div class="movie-details">
+                            <span>2001</span>
+                            <span class="rating">8.1/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="movie-card">
+                    <div class="category-badge">Hollywood</div>
+                    <img src="https://m.media-amazon.com/images/I/61JmNG2dsDL._AC_UF1000,1000_QL80_.jpg" alt="Movie 15">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Pulp Fiction</h3>
+                        <div class="movie-details">
+                            <span>1994</span>
+                            <span class="rating">8.9/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="movie-card">
+                    <div class="category-badge">Tollywood</div>
+                    <img src="https://c8.alamy.com/comp/HAH93T/bahubali-the-beginning-year-2015-india-director-ss-rajamouli-prabhas-HAH93T.jpg" alt="Movie 16">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Bahubali: The Beginning</h3>
+                        <div class="movie-details">
+                            <span>2015</span>
+                            <span class="rating">8.1/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="movie-card">
+                    <div class="category-badge">Hollywood</div>
+                    <img src="https://m.media-amazon.com/images/I/71715eBi1sL._AC_UF894,1000_QL80_.jpg" alt="Movie 17">
+                    <div class="movie-info">
+                        <h3 class="movie-title">The Shawshank Redemption</h3>
+                        <div class="movie-details">
+                            <span>1994</span>
+                            <span class="rating">9.3/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="movie-card">
+                    <div class="category-badge">Bollywood</div>
+                    <img src="https://upload.wikimedia.org/wikipedia/en/d/df/3_idiots_poster.jpg" alt="Movie 18">
+                    <div class="movie-info">
+                        <h3 class="movie-title">3 Idiots</h3>
+                        <div class="movie-details">
+                            <span>2009</span>
+                            <span class="rating">8.4/10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-btn prev"><i class="fas fa-chevron-left"></i></div>
+            <div class="slider-btn next"><i class="fas fa-chevron-right"></i></div>
+        </div>
+    </section>
+    
+    <!-- Browse by Category Section -->
+    <section class="categories-section" id="categories-section">
+        <div class="section-title">
+            <h2>Browse by Category</h2>
+            <a href="#" class="view-all" id="view-all-categories">View All</a>
+        </div>
+        <div class="category-tabs">
+            <div class="category-tab active" data-category="hollywood">Hollywood</div>
+            <div class="category-tab" data-category="bollywood">Bollywood</div>
+            <div class="category-tab" data-category="tollywood">Tollywood</div>
+        </div>
+        <div class="category-content">
+            <!-- Hollywood Movies (Initially Visible) -->
+            <div class="movie-card" data-category="hollywood">
+                <img src="/api/placeholder/200/300" alt="Hollywood Movie 1">
+                <div class="movie-info">
+                    <h3 class="movie-title">The Departed</h3>
+                    <div class="movie-details">
+                        <span>2006</span>
+                        <span class="rating">8.5/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="movie-card" data-category="hollywood">
+                <img src="/api/placeholder/200/300" alt="Hollywood Movie 2">
+                <div class="movie-info">
+                    <h3 class="movie-title">Inception</h3>
+                    <div class="movie-details">
+                        <span>2010</span>
+                        <span class="rating">8.8/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="movie-card" data-category="hollywood">
+                <img src="/api/placeholder/200/300" alt="Hollywood Movie 3">
+                <div class="movie-info">
+                    <h3 class="movie-title">The Dark Knight</h3>
+                    <div class="movie-details">
+                        <span>2008</span>
+                        <span class="rating">9.0/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="movie-card" data-category="hollywood">
+                <img src="/api/placeholder/200/300" alt="Hollywood Movie 4">
+                <div class="movie-info">
+                    <h3 class="movie-title">Interstellar</h3>
+                    <div class="movie-details">
+                        <span>2014</span>
+                        <span class="rating">8.6/10</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Bollywood Movies (Initially Hidden) -->
+            <div class="movie-card" data-category="bollywood" style="display: none;">
+                <img src="/api/placeholder/200/300" alt="Bollywood Movie 1">
+                <div class="movie-info">
+                    <h3 class="movie-title">Dangal</h3>
+                    <div class="movie-details">
+                        <span>2016</span>
+                        <span class="rating">8.4/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="movie-card" data-category="bollywood" style="display: none;">
+                <img src="/api/placeholder/200/300" alt="Bollywood Movie 2">
+                <div class="movie-info">
+                    <h3 class="movie-title">PK</h3>
+                    <div class="movie-details">
+                        <span>2014</span>
+                        <span class="rating">8.1/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="movie-card" data-category="bollywood" style="display: none;">
+                <img src="/api/placeholder/200/300" alt="Bollywood Movie 3">
+                <div class="movie-info">
+                    <h3 class="movie-title">Bajrangi Bhaijaan</h3>
+                    <div class="movie-details">
+                        <span>2015</span>
+                        <span class="rating">8.0/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="movie-card" data-category="bollywood" style="display: none;">
+                <img src="/api/placeholder/200/300" alt="Bollywood Movie 4">
+                <div class="movie-info">
+                    <h3 class="movie-title">Queen</h3>
+                    <div class="movie-details">
+                        <span>2014</span>
+                        <span class="rating">8.2/10</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Tollywood Movies (Initially Hidden) -->
+            <div class="movie-card" data-category="tollywood" style="display: none;">
+                <img src="/api/placeholder/200/300" alt="Tollywood Movie 1">
+                <div class="movie-info">
+                    <h3 class="movie-title">Bahubali: The Conclusion</h3>
+                    <div class="movie-details">
+                        <span>2017</span>
+                        <span class="rating">8.2/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="movie-card" data-category="tollywood" style="display: none;">
+                <img src="/api/placeholder/200/300" alt="Tollywood Movie 2">
+                <div class="movie-info">
+                    <h3 class="movie-title">KGF: Chapter 1</h3>
+                    <div class="movie-details">
+                        <span>2018</span>
+                        <span class="rating">8.3/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="movie-card" data-category="tollywood" style="display: none;">
+                <img src="/api/placeholder/200/300" alt="Tollywood Movie 3">
+                <div class="movie-info">
+                    <h3 class="movie-title">Arjun Reddy</h3>
+                    <div class="movie-details">
+                        <span>2017</span>
+                        <span class="rating">8.1/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="movie-card" data-category="tollywood" style="display: none;">
+                <img src="/api/placeholder/200/300" alt="Tollywood Movie 4">
+                <div class="movie-info">
+                    <h3 class="movie-title">Rangasthalam</h3>
+                    <div class="movie-details">
+                        <span>2018</span>
+                        <span class="rating">8.4/10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Reviews Section -->
+    <section class="reviews-section">
+        <div class="section-title">
+            <h2>Latest Reviews</h2>
+        </div>
+        <div class="slider-container">
+            <div class="slider">
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="user-avatar">JD</div>
+                        <div>
+                            <div class="review-movie">Interstellar</div>
+                            <div class="rating">9.2/10</div>
+                        </div>
+                    </div>
+                    <div class="review-text">
+                        "One of the best sci-fi movies ever made. The visuals are stunning and the story keeps you on the edge of your seat."
+                    </div>
+                    <div class="review-footer">
+                        <span>John Doe</span>
+                        <span>2 days ago</span>
+                    </div>
+                </div>
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="user-avatar">AP</div>
+                        <div>
+                            <div class="review-movie">RRR</div>
+                            <div class="rating">8.5/10</div>
+                        </div>
+                    </div>
+                    <div class="review-text">
+                        "Amazing action sequences and great performances. A visual spectacle that deserves all the international recognition."
+                    </div>
+                    <div class="review-footer">
+                        <span>Anil Patel</span>
+                        <span>1 week ago</span>
+                    </div>
+                </div>
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="user-avatar">SK</div>
+                        <div>
+                            <div class="review-movie">Jawan</div>
+                            <div class="rating">7.8/10</div>
+                        </div>
+                    </div>
+                    <div class="review-text">
+                        "Shah Rukh Khan delivers a powerful performance in this action-packed thriller. The story has some flaws but overall it's entertaining."
+                    </div>
+                    <div class="review-footer">
+                        <span>Sarah Kim</span>
+                        <span>3 days ago</span>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-btn prev"><i class="fas fa-chevron-left"></i></div>
+            <div class="slider-btn next"><i class="fas fa-chevron-right"></i></div>
+        </div>
+    </section>
+</main>
+
+<!-- View All Pages -->
+<!-- Recently Released View All Page -->
+<div class="view-all-page" id="recent-view-all">
+    <div class="back-button" id="back-from-recent"><i class="fas fa-arrow-left"></i> Back</div>
+    <h2 class="page-title">Recently Released Movies</h2>
+    <div class="view-all-grid">
+        <!-- First 6 from carousel -->
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 1">
+            <div class="movie-info">
+                <h3 class="movie-title">Dune: Part Two</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">9.1/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Bollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 2">
+            <div class="movie-info">
+                <h3 class="movie-title">Kalki 2898 AD</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">8.7/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 3">
+            <div class="movie-info">
+                <h3 class="movie-title">Oppenheimer</h3>
+                <div class="movie-details">
+                    <span>2023</span>
+                    <span class="rating">8.9/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Tollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 4">
+            <div class="movie-info">
+                <h3 class="movie-title">Salaar</h3>
+                <div class="movie-details">
+                    <span>2023</span>
+                    <span class="rating">8.5/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 5">
+            <div class="movie-info">
+                <h3 class="movie-title">Joker: Folie à Deux</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">7.9/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Bollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 6">
+            <div class="movie-info">
+                <h3 class="movie-title">Animal</h3>
+                <div class="movie-details">
+                    <span>2023</span>
+                    <span class="rating">8.2/10</span>
+                </div>
+            </div>
+        </div>
+        <!-- Additional Movies -->
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 19">
+            <div class="movie-info">
+                <h3 class="movie-title">Deadpool & Wolverine</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">8.6/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 20">
+            <div class="movie-info">
+                <h3 class="movie-title">Twisters</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">7.4/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 21">
+            <div class="movie-info">
+                <h3 class="movie-title">Furiosa: A Mad Max Saga</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">8.2/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Bollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 22">
+            <div class="movie-info">
+                <h3 class="movie-title">Stree 2</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">8.0/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Bollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 23">
+            <div class="movie-info">
+                <h3 class="movie-title">Shaitaan</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">7.3/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Tollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 24">
+            <div class="movie-info">
+                <h3 class="movie-title">Devara</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">7.8/10</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Trending View All Page -->
+<div class="view-all-page" id="trending-view-all">
+    <div class="back-button" id="back-from-trending"><i class="fas fa-arrow-left"></i> Back</div>
+    <h2 class="page-title">Trending Movies</h2>
+    <div class="view-all-grid">
+        <!-- First 6 from carousel -->
+        <div class="movie-card">
+            <div class="category-badge">Bollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 7">
+            <div class="movie-info">
+                <h3 class="movie-title">Jawan</h3>
+                <div class="movie-details">
+                    <span>2023</span>
+                    <span class="rating">7.9/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 8">
+            <div class="movie-info">
+                <h3 class="movie-title">Barbie</h3>
+                <div class="movie-details">
+                    <span>2023</span>
+                    <span class="rating">7.3/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Tollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 9">
+            <div class="movie-info">
+                <h3 class="movie-title">Pushpa</h3>
+                <div class="movie-details">
+                    <span>2021</span>
+                    <span class="rating">7.6/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 10">
+            <div class="movie-info">
+                <h3 class="movie-title">Avatar: The Way of Water</h3>
+                <div class="movie-details">
+                    <span>2022</span>
+                    <span class="rating">7.7/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Bollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 11">
+            <div class="movie-info">
+                <h3 class="movie-title">Pathaan</h3>
+                <div class="movie-details">
+                    <span>2023</span>
+                    <span class="rating">7.1/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Tollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 12">
+            <div class="movie-info">
+                <h3 class="movie-title">RRR</h3>
+                <div class="movie-details">
+                    <span>2022</span>
+                    <span class="rating">8.0/10</span>
+                </div>
+            </div>
+        </div>
+        <!-- Additional Movies -->
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 25">
+            <div class="movie-info">
+                <h3 class="movie-title">Inside Out 2</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">8.4/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 26">
+            <div class="movie-info">
+                <h3 class="movie-title">Godzilla x Kong</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">7.3/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Bollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 27">
+            <div class="movie-info">
+                <h3 class="movie-title">Fighter</h3>
+                <div class="movie-details">
+                    <span>2024</span>
+                    <span class="rating">7.4/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 28">
+            <div class="movie-info">
+                <h3 class="movie-title">The Batman</h3>
+                <div class="movie-details">
+                    <span>2022</span>
+                    <span class="rating">7.8/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Tollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 29">
+            <div class="movie-info">
+                <h3 class="movie-title">KGF: Chapter 2</h3>
+                <div class="movie-details">
+                    <span>2022</span>
+                    <span class="rating">8.3/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Bollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 30">
+            <div class="movie-info">
+                <h3 class="movie-title">Tu Jhoothi Main Makkaar</h3>
+                <div class="movie-details">
+                    <span>2023</span>
+                    <span class="rating">6.5/10</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recommended View All Page -->
+<div class="view-all-page" id="recommended-view-all">
+    <div class="back-button" id="back-from-recommended"><i class="fas fa-arrow-left"></i> Back</div>
+    <h2 class="page-title">Recommended Movies</h2>
+    <div class="view-all-grid">
+        <!-- First 6 from carousel -->
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 13">
+            <div class="movie-info">
+                <h3 class="movie-title">The Godfather</h3>
+                <div class="movie-details">
+                    <span>1972</span>
+                    <span class="rating">9.2/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Bollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 14">
+            <div class="movie-info">
+                <h3 class="movie-title">Lagaan</h3>
+                <div class="movie-details">
+                    <span>2001</span>
+                    <span class="rating">8.1/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 15">
+            <div class="movie-info">
+                <h3 class="movie-title">Pulp Fiction</h3>
+                <div class="movie-details">
+                    <span>1994</span>
+                    <span class="rating">8.9/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Tollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 16">
+            <div class="movie-info">
+                <h3 class="movie-title">Bahubali: The Beginning</h3>
+                <div class="movie-details">
+                    <span>2015</span>
+                    <span class="rating">8.1/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Hollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 17">
+            <div class="movie-info">
+                <h3 class="movie-title">The Shawshank Redemption</h3>
+                <div class="movie-details">
+                    <span>1994</span>
+                    <span class="rating">9.3/10</span>
+                </div>
+            </div>
+        </div>
+        <div class="movie-card">
+            <div class="category-badge">Bollywood</div>
+            <img src="/api/placeholder/200/300" alt="Movie 18">
+            <div class="movie-info">
+                <h3 class="movie-title">3 Idiots</h3>
+                <div class="movie-details">
+                    <span>2009</span>
+                    <span class="rating">8.4/10</span>
+                </div>
+            </div>
+        </div>
+        <!-- Movie Card 11 Completion -->
+        <div class="movie-info">
+            <h3 class="movie-title">Pathaan</h3>
+            <div class="movie-details">
+                <span>2023</span>
+                <span class="rating">7.1/10</span>
+            </div>
+        </div>
+    </div>
+    <div class="movie-card">
+        <div class="category-badge">Tollywood</div>
+        <img src="/api/placeholder/200/300" alt="Movie 12">
+        <div class="movie-info">
+            <h3 class="movie-title">RRR</h3>
+            <div class="movie-details">
+                <span>2022</span>
+                <span class="rating">8.0/10</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="slider-btn prev"><i class="fas fa-chevron-left"></i></div>
+<div class="slider-btn next"><i class="fas fa-chevron-right"></i></div>
+</div>
+</section>
+
+<!-- Recommended For You -->
+<section class="movie-row" id="recommended">
+<div class="section-title">
+<h2>Recommended For You</h2>
+<a href="#" class="view-all" id="view-all-recommended">View All</a>
+</div>
+<div class="slider-container">
+<div class="slider">
+    <div class="movie-card">
+        <div class="category-badge">Hollywood</div>
+        <img src="/api/placeholder/200/300" alt="Movie 13">
+        <div class="movie-info">
+            <h3 class="movie-title">The Godfather</h3>
+            <div class="movie-details">
+                <span>1972</span>
+                <span class="rating">9.2/10</span>
+            </div>
+        </div>
+    </div>
+    <div class="movie-card">
+        <div class="category-badge">Bollywood</div>
+        <img src="/api/placeholder/200/300" alt="Movie 14">
+        <div class="movie-info">
+            <h3 class="movie-title">Lagaan</h3>
+            <div class="movie-details">
+                <span>2001</span>
+                <span class="rating">8.1/10</span>
+            </div>
+        </div>
+    </div>
+    <div class="movie-card">
+        <div class="category-badge">Hollywood</div>
+        <img src="/api/placeholder/200/300" alt="Movie 15">
+        <div class="movie-info">
+            <h3 class="movie-title">Pulp Fiction</h3>
+            <div class="movie-details">
+                <span>1994</span>
+                <span class="rating">8.9/10</span>
+            </div>
+        </div>
+    </div>
+    <div class="movie-card">
+        <div class="category-badge">Tollywood</div>
+        <img src="/api/placeholder/200/300" alt="Movie 16">
+        <div class="movie-info">
+            <h3 class="movie-title">Bahubali: The Beginning</h3>
+            <div class="movie-details">
+                <span>2015</span>
+                <span class="rating">8.1/10</span>
+            </div>
+        </div>
+    </div>
+    <div class="movie-card">
+        <div class="category-badge">Hollywood</div>
+        <img src="/api/placeholder/200/300" alt="Movie 17">
+        <div class="movie-info">
+            <h3 class="movie-title">The Shawshank Redemption</h3>
+            <div class="movie-details">
+                <span>1994</span>
+                <span class="rating">9.3/10</span>
+            </div>
+        </div>
+    </div>
+    <div class="movie-card">
+        <div class="category-badge">Bollywood</div>
+        <img src="/api/placeholder/200/300" alt="Movie 18">
+        <div class="movie-info">
+            <h3 class="movie-title">3 Idiots</h3>
+            <div class="movie-details">
+                <span>2009</span>
+                <span class="rating">8.4/10</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="slider-btn prev"><i class="fas fa-chevron-left"></i></div>
+<div class="slider-btn next"><i class="fas fa-chevron-right"></i></div>
+</div>
+</section>
+
+<!-- Browse by Category Section -->
+<section class="categories-section" id="categories-section">
+<div class="section-title">
+<h2>Browse by Category</h2>
+<a href="#" class="view-all" id="view-all-categories">View All</a>
+</div>
+<div class="category-tabs">
+<div class="category-tab active" data-category="hollywood">Hollywood</div>
+<div class="category-tab" data-category="bollywood">Bollywood</div>
+<div class="category-tab" data-category="tollywood">Tollywood</div>
+</div>
+<div class="category-content">
+<!-- Hollywood Movies (Initially Visible) -->
+<div class="movie-card" data-category="hollywood">
+    <img src="/api/placeholder/200/300" alt="Hollywood Movie 1">
+    <div class="movie-info">
+        <h3 class="movie-title">The Departed</h3>
+        <div class="movie-details">
+            <span>2006</span>
+            <span class="rating">8.5/10</span>
+        </div>
+    </div>
+</div>
+<div class="movie-card" data-category="hollywood">
+    <img src="/api/placeholder/200/300" alt="Hollywood Movie 2">
+    <div class="movie-info">
+        <h3 class="movie-title">Inception</h3>
+        <div class="movie-details">
+            <span>2010</span>
+            <span class="rating">8.8/10</span>
+        </div>
+    </div>
+</div>
+<div class="movie-card" data-category="hollywood">
+    <img src="/api/placeholder/200/300" alt="Hollywood Movie 3">
+    <div class="movie-info">
+        <h3 class="movie-title">The Dark Knight</h3>
+        <div class="movie-details">
+            <span>2008</span>
+            <span class="rating">9.0/10</span>
+        </div>
+    </div>
+</div>
+<div class="movie-card" data-category="hollywood">
+    <img src="/api/placeholder/200/300" alt="Hollywood Movie 4">
+    <div class="movie-info">
+        <h3 class="movie-title">Interstellar</h3>
+        <div class="movie-details">
+            <span>2014</span>
+            <span class="rating">8.6/10</span>
+        </div>
+    </div>
+</div>
+<!-- Bollywood Movies (Initially Hidden) -->
+<div class="movie-card" data-category="bollywood" style="display: none;">
+    <img src="/api/placeholder/200/300" alt="Bollywood Movie 1">
+    <div class="movie-info">
+        <h3 class="movie-title">Dangal</h3>
+        <div class="movie-details">
+            <span>2016</span>
+            <span class="rating">8.4/10</span>
+        </div>
+    </div>
+</div>
+<div class="movie-card" data-category="bollywood" style="display: none;">
+    <img src="/api/placeholder/200/300" alt="Bollywood Movie 2">
+    <div class="movie-info">
+        <h3 class="movie-title">PK</h3>
+        <div class="movie-details">
+            <span>2014</span>
+            <span class="rating">8.1/10</span>
+        </div>
+    </div>
+</div>
+<div class="movie-card" data-category="bollywood" style="display: none;">
+    <img src="/api/placeholder/200/300" alt="Bollywood Movie 3">
+    <div class="movie-info">
+        <h3 class="movie-title">Bajrangi Bhaijaan</h3>
+        <div class="movie-details">
+            <span>2015</span>
+            <span class="rating">8.0/10</span>
+        </div>
+    </div>
+</div>
+<div class="movie-card" data-category="bollywood" style="display: none;">
+    <img src="/api/placeholder/200/300" alt="Bollywood Movie 4">
+    <div class="movie-info">
+        <h3 class="movie-title">Queen</h3>
+        <div class="movie-details">
+            <span>2014</span>
+            <span class="rating">8.2/10</span>
+        </div>
+    </div>
+</div>
+<!-- Tollywood Movies (Initially Hidden) -->
+<div class="movie-card" data-category="tollywood" style="display: none;">
+    <img src="/api/placeholder/200/300" alt="Tollywood Movie 1">
+    <div class="movie-info">
+        <h3 class="movie-title">Bahubali: The Conclusion</h3>
+        <div class="movie-details">
+            <span>2017</span>
+            <span class="rating">8.2/10</span>
+        </div>
+    </div>
+</div>
+<div class="movie-card" data-category="tollywood" style="display: none;">
+    <img src="/api/placeholder/200/300" alt="Tollywood Movie 2">
+    <div class="movie-info">
+        <h3 class="movie-title">KGF: Chapter 1</h3>
+        <div class="movie-details">
+            <span>2018</span>
+            <span class="rating">8.3/10</span>
+        </div>
+    </div>
+</div>
+<div class="movie-card" data-category="tollywood" style="display: none;">
+    <img src="/api/placeholder/200/300" alt="Tollywood Movie 3">
+    <div class="movie-info">
+        <h3 class="movie-title">Arjun Reddy</h3>
+        <div class="movie-details">
+            <span>2017</span>
+            <span class="rating">8.1/10</span>
+        </div>
+    </div>
+</div>
+<div class="movie-card" data-category="tollywood" style="display: none;">
+    <img src="/api/placeholder/200/300" alt="Tollywood Movie 4">
+    <div class="movie-info">
+        <h3 class="movie-title">Rangasthalam</h3>
+        <div class="movie-details">
+            <span>2018</span>
+            <span class="rating">8.4/10</span>
+        </div>
+    </div>
+</div>
+</div>
+</section>
+
+<!-- Reviews Section -->
+<section class="reviews-section">
+<div class="section-title">
+<h2>Latest Reviews</h2>
+</div>
+<div class="slider-container">
+<div class="slider">
+    <div class="review-card">
+        <div class="review-header">
+            <div class="user-avatar">JD</div>
+            <div>
+                <div class="review-movie">Interstellar</div>
+                <div class="rating">9.2/10</div>
+            </div>
+        </div>
+        <div class="review-text">
+            "One of the best sci-fi movies ever made. The visuals are stunning and the story keeps you on the edge of your seat."
+        </div>
+        <div class="review-footer">
+            <span>John Doe</span>
+            <span>2 days ago</span>
+        </div>
+    </div>
+    <div class="review-card">
+        <div class="review-header">
+            <div class="user-avatar">AP</div>
+            <div>
+                <div class="review-movie">RRR</div>
+                <div class="rating">8.5/10</div>
+            </div>
+        </div>
+        <div class="review-text">
+            "Amazing action sequences and great performances. A visual spectacle that deserves all the international recognition."
+        </div>
+        <div class="review-footer">
+            <span>Anil Patel</span>
+            <span>1 week ago</span>
+        </div>
+    </div>
+    <div class="review-card">
+        <div class="review-header">
+            <div class="user-avatar">SK</div>
+            <div>
+                <div class="review-movie">Jawan</div>
+                <div class="rating">7.8/10</div>
+            </div>
+        </div>
+        <div class="review-text">
+            "Shah Rukh Khan delivers a powerful performance in this action-packed thriller. The story has some flaws but overall it's entertaining."
+        </div>
+        <div class="review-footer">
+            <span>Sarah Kim</span>
+            <span>3 days ago</span>
+        </div>
+    </div>
+</div>
+<div class="slider-btn prev"><i class="fas fa-chevron-left"></i></div>
+<div class="slider-btn next"><i class="fas fa-chevron-right"></i></div>
+</div>
+</section>
+</main>
+
+<!-- View All Pages -->
+<!-- Recently Released View All Page -->
+<div class="view-all-page" id="recent-view-all">
+<div class="back-button" id="back-from-recent"><i class="fas fa-arrow-left"></i> Back</div>
+<h2 class="page-title">Recently Released Movies</h2>
+<div class="view-all-grid">
+<!-- First 6 from carousel -->
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 1">
+<div class="movie-info">
+    <h3 class="movie-title">Dune: Part Two</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">9.1/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Bollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 2">
+<div class="movie-info">
+    <h3 class="movie-title">Kalki 2898 AD</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">8.7/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 3">
+<div class="movie-info">
+    <h3 class="movie-title">Oppenheimer</h3>
+    <div class="movie-details">
+        <span>2023</span>
+        <span class="rating">8.9/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Tollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 4">
+<div class="movie-info">
+    <h3 class="movie-title">Salaar</h3>
+    <div class="movie-details">
+        <span>2023</span>
+        <span class="rating">8.5/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 5">
+<div class="movie-info">
+    <h3 class="movie-title">Joker: Folie à Deux</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">7.9/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Bollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 6">
+<div class="movie-info">
+    <h3 class="movie-title">Animal</h3>
+    <div class="movie-details">
+        <span>2023</span>
+        <span class="rating">8.2/10</span>
+    </div>
+</div>
+</div>
+<!-- Additional Movies -->
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 19">
+<div class="movie-info">
+    <h3 class="movie-title">Deadpool & Wolverine</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">8.6/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 20">
+<div class="movie-info">
+    <h3 class="movie-title">Twisters</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">7.4/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 21">
+<div class="movie-info">
+    <h3 class="movie-title">Furiosa: A Mad Max Saga</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">8.2/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Bollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 22">
+<div class="movie-info">
+    <h3 class="movie-title">Stree 2</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">8.0/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Bollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 23">
+<div class="movie-info">
+    <h3 class="movie-title">Shaitaan</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">7.3/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Tollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 24">
+<div class="movie-info">
+    <h3 class="movie-title">Devara</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">7.8/10</span>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Trending View All Page -->
+<div class="view-all-page" id="trending-view-all">
+<div class="back-button" id="back-from-trending"><i class="fas fa-arrow-left"></i> Back</div>
+<h2 class="page-title">Trending Movies</h2>
+<div class="view-all-grid">
+<!-- First 6 from carousel -->
+<div class="movie-card">
+<div class="category-badge">Bollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 7">
+<div class="movie-info">
+    <h3 class="movie-title">Jawan</h3>
+    <div class="movie-details">
+        <span>2023</span>
+        <span class="rating">7.9/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 8">
+<div class="movie-info">
+    <h3 class="movie-title">Barbie</h3>
+    <div class="movie-details">
+        <span>2023</span>
+        <span class="rating">7.3/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Tollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 9">
+<div class="movie-info">
+    <h3 class="movie-title">Pushpa</h3>
+    <div class="movie-details">
+        <span>2021</span>
+        <span class="rating">7.6/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 10">
+<div class="movie-info">
+    <h3 class="movie-title">Avatar: The Way of Water</h3>
+    <div class="movie-details">
+        <span>2022</span>
+        <span class="rating">7.7/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Bollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 11">
+<div class="movie-info">
+    <h3 class="movie-title">Pathaan</h3>
+    <div class="movie-details">
+        <span>2023</span>
+        <span class="rating">7.1/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Tollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 12">
+<div class="movie-info">
+    <h3 class="movie-title">RRR</h3>
+    <div class="movie-details">
+        <span>2022</span>
+        <span class="rating">8.0/10</span>
+    </div>
+</div>
+</div>
+<!-- Additional Movies -->
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 25">
+<div class="movie-info">
+    <h3 class="movie-title">Inside Out 2</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">8.4/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 26">
+<div class="movie-info">
+    <h3 class="movie-title">Godzilla x Kong</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">7.3/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Bollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 27">
+<div class="movie-info">
+    <h3 class="movie-title">Fighter</h3>
+    <div class="movie-details">
+        <span>2024</span>
+        <span class="rating">7.4/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 28">
+<div class="movie-info">
+    <h3 class="movie-title">The Batman</h3>
+    <div class="movie-details">
+        <span>2022</span>
+        <span class="rating">7.8/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Tollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 29">
+<div class="movie-info">
+    <h3 class="movie-title">KGF: Chapter 2</h3>
+    <div class="movie-details">
+        <span>2022</span>
+        <span class="rating">8.3/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Bollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 30">
+<div class="movie-info">
+    <h3 class="movie-title">Tu Jhoothi Main Makkaar</h3>
+    <div class="movie-details">
+        <span>2023</span>
+        <span class="rating">6.5/10</span>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Recommended View All Page -->
+<div class="view-all-page" id="recommended-view-all">
+<div class="back-button" id="back-from-recommended"><i class="fas fa-arrow-left"></i> Back</div>
+<h2 class="page-title">Recommended Movies</h2>
+<div class="view-all-grid">
+<!-- First 6 from carousel -->
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 13">
+<div class="movie-info">
+    <h3 class="movie-title">The Godfather</h3>
+    <div class="movie-details">
+        <span>1972</span>
+        <span class="rating">9.2/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Bollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 14">
+<div class="movie-info">
+    <h3 class="movie-title">Lagaan</h3>
+    <div class="movie-details">
+        <span>2001</span>
+        <span class="rating">8.1/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 15">
+<div class="movie-info">
+    <h3 class="movie-title">Pulp Fiction</h3>
+    <div class="movie-details">
+        <span>1994</span>
+        <span class="rating">8.9/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Tollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 16">
+<div class="movie-info">
+    <h3 class="movie-title">Bahubali: The Beginning</h3>
+    <div class="movie-details">
+        <span>2015</span>
+        <span class="rating">8.1/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Hollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 17">
+<div class="movie-info">
+    <h3 class="movie-title">The Shawshank Redemption</h3>
+    <div class="movie-details">
+        <span>1994</span>
+        <span class="rating">9.3/10</span>
+    </div>
+</div>
+</div>
+<div class="movie-card">
+<div class="category-badge">Bollywood</div>
+<img src="/api/placeholder/200/300" alt="Movie 18">
+<div class="movie-info">
+    <h3 class="movie-title">3 Idiots</h3>
+    <div class="movie-details">
+        <span>2009</span>
+        <span class="rating">8.4/10</span>
+    </div>
+</div>
+</div>
+
+        
